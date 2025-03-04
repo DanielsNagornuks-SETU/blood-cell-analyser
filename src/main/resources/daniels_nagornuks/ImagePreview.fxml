@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="daniels_nagornuks.ImagePreviewController"
-            prefHeight="400.0" prefWidth="600.0">
-
+<AnchorPane prefHeight="610.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="daniels_nagornuks.ImagePreviewController">
+   <children>
+      <Slider fx:id="saturationSlider" layoutX="798.0" layoutY="85.0" max="1.0" min="-1.0" orientation="VERTICAL" prefHeight="451.0" prefWidth="16.0" />
+      <Slider fx:id="hueSlider" layoutX="859.0" layoutY="85.0" max="1.0" min="-1.0" orientation="VERTICAL" prefHeight="451.0" prefWidth="16.0" />
+      <Slider fx:id="brightnessSlider" layoutX="918.0" layoutY="85.0" max="1.0" min="-1.0" orientation="VERTICAL" prefHeight="451.0" prefWidth="16.0" />
+      <Label layoutX="774.0" layoutY="67.0" text="Saturation" />
+      <Label layoutX="855.0" layoutY="67.0" text="Hue" />
+      <Label layoutX="893.0" layoutY="67.0" text="Brightness" />
+      <ImageView fx:id="previewImageView" fitHeight="468.0" fitWidth="653.0" layoutX="57.0" layoutY="67.0" pickOnBounds="true" preserveRatio="true" />
+      <Button layoutX="834.0" layoutY="547.0" mnemonicParsing="false" onAction="#confirm" text="Confirm" />
+   </children>
 </AnchorPane>

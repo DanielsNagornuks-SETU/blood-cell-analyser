@@ -1,12 +1,17 @@
 package daniels_nagornuks;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.CheckBox;
 import javafx.scene.image.*;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.IOException;
 
 public class MainViewController {
 
@@ -41,7 +46,7 @@ public class MainViewController {
     private void loadImage() {
         imageFile = fileChooser.showOpenDialog(imageView.getScene().getWindow());
         if (imageFile != null) {
-            setImage();
+            setImage(true);
         }
     }
 
@@ -52,7 +57,28 @@ public class MainViewController {
 
     @FXML
     private void makeAdjustments() {
+        Stage adjustmentStage = new Stage();
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("ImagePreview.fxml"));
+        Scene imagePreviewScene;
+        try {
+            imagePreviewScene = new Scene(fxmlloader.load());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        adjustmentStage.setScene(imagePreviewScene);
+        adjustmentStage.setTitle("Image Adjustments Preview");
+        ImagePreviewController imagePreviewController = fxmlloader.getController();
+        imagePreviewController.setImage(imageFile);
+        adjustmentStage.setResizable(false);
+        adjustmentStage.initModality(Modality.APPLICATION_MODAL);
+        imagePreviewController.setMainViewController(this);
+        imagePreviewController.setMainViewStage(adjustmentStage);
+        adjustmentStage.show();
+    }
 
+    public void setAdjustedImage(Image adjustedImage) {
+        image = adjustedImage;
+        setImage(false);
     }
 
     @FXML
@@ -64,8 +90,10 @@ public class MainViewController {
         }
     }
 
-    private void setImage() {
-        image = new Image(imageFile.toURI().toString());
+    private void setImage(boolean imageFromFile) {
+        if (imageFromFile) {
+            image = new Image(imageFile.toURI().toString());
+        }
         imageWidth = (int) image.getWidth();
         imageHeight = (int) image.getHeight();
         pixelReader = image.getPixelReader();
@@ -114,7 +142,5 @@ public class MainViewController {
         double blueDistance = color1.getBlue() - color2.getBlue();
         return Math.sqrt(redDistance * redDistance + greenDistance * greenDistance + blueDistance * blueDistance);
     }
-
-
 
 }
