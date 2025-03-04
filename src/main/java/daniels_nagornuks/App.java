@@ -6,6 +6,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.sql.SQLOutput;
 
 public class App extends Application {
 
@@ -18,7 +19,16 @@ public class App extends Application {
     }
 
     public static void main(String[] args) {
-        launch();
+        DisjointSets.resetPixelArray(100);
+        System.out.println(DisjointSets.getSize(5));
+        System.out.println(DisjointSets.getHeight(5));
+        DisjointSets.quickUnion(4,5);
+        System.out.println(DisjointSets.getSize(5));
+        System.out.println(DisjointSets.getHeight(5));
+        DisjointSets.quickUnion(5,6);
+        System.out.println(DisjointSets.getSize(5));
+        System.out.println(DisjointSets.getHeight(5));
+        //launch();
     }
 
 }

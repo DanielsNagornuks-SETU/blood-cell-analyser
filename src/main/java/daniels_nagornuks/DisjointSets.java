@@ -2,36 +2,46 @@ package daniels_nagornuks;
 
 public class DisjointSets {
 
-    public static int[] pixelArray;
+    public static int[] elements;
 
-    public void resetPixelArray(int size) {
-        pixelArray = new int[size];
-        for (int i = 100; i < size; i++) {
-
+    public static void resetPixelArray(int size) {
+        elements = new int[size];
+        for (int i = 0; i < size; i++) {
+            elements[i] = elements[i] | 0x80010001;
         }
     }
 
-    public int find(int id) {
+    public static int find(int id) {
         while(!isRoot(id)) {
-            id = pixelArray[id];
+            id = elements[id];
         }
         return id;
     }
 
-    public void union() {
-
+    public static void quickUnion(int id1, int id2) {
+        int newSize = getSize(id1) + getSize(id2);
+        elements[find(id1)] = id2;
+        setSize(id1, newSize);
     }
 
-    public boolean isRoot(int id) {
-        return (pixelArray[id] >>> 31) == 1;
+    public static boolean isRoot(int id) {
+        return (elements[id] >>> 31) == 1;
     }
 
-    public int getSize(int id) {
-        return pixelArray[find(id)] & 0xFFFF;
+    public static int getSize(int id) {
+        return elements[find(id)] & 0xFFFF;
     }
 
-    public int getHeight(int id) {
-        return 0;
+    public static int getHeight(int id) {
+        return (elements[find(id)] << 1) >>> 17;
+    }
+
+    public static void setSize(int id, int size) {
+        elements[find(id)] = (elements[find(id)] & 0xFFFF0000) | size;
+    }
+
+    public static void setHeight(int id, int height) {
+        elements[find(id)] = (elements[find(id)] & 0x8000FFFF) | (height << 16);
     }
 
 }
