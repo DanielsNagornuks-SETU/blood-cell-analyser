@@ -22,7 +22,7 @@ public class DisjointSets {
         return id;
     }
 
-    public static void smartUnion(int id1, int id2) {
+    public static void union(int id1, int id2) {
         int root1 = find(id1);
         int root2 = find(id2);
         if (root1 == root2) {

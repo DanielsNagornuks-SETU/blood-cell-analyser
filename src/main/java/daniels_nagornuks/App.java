@@ -20,14 +20,10 @@ public class App extends Application {
 
     public static void main(String[] args) {
         DisjointSets.resetElements(10);
-        DisjointSets.smartUnion(2,1);
-        DisjointSets.smartUnion(3,1);
-        DisjointSets.smartUnion(4,3);
-        DisjointSets.smartUnion(6,5);
-        DisjointSets.smartUnion(0,7);
-        DisjointSets.smartUnion(8,7);
-        DisjointSets.smartUnion(9,7);
-        DisjointSets.smartUnion(4,6);
+        DisjointSets.union(0,1);
+        DisjointSets.union(2,3);
+        DisjointSets.union(3,1);
+        DisjointSets.elements[3] = 1;
         for (int i = 0; i < 10; i++) {
             System.out.println("Element: " + i + ", Root: " + DisjointSets.find(i) + ", Size: " + DisjointSets.getSize(i) + ", Height: " + DisjointSets.getHeight(i));
         }
