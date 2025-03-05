@@ -19,15 +19,19 @@ public class App extends Application {
     }
 
     public static void main(String[] args) {
-        DisjointSets.resetPixelArray(100);
-        System.out.println(DisjointSets.getSize(5));
-        System.out.println(DisjointSets.getHeight(5));
-        DisjointSets.quickUnion(4,5);
-        System.out.println(DisjointSets.getSize(5));
-        System.out.println(DisjointSets.getHeight(5));
-        DisjointSets.quickUnion(5,6);
-        System.out.println(DisjointSets.getSize(5));
-        System.out.println(DisjointSets.getHeight(5));
+        DisjointSets.resetElements(10);
+        DisjointSets.smartUnion(2,1);
+        DisjointSets.smartUnion(3,1);
+        DisjointSets.smartUnion(4,3);
+        DisjointSets.smartUnion(6,5);
+        DisjointSets.smartUnion(0,7);
+        DisjointSets.smartUnion(8,7);
+        DisjointSets.smartUnion(9,7);
+        DisjointSets.smartUnion(4,6);
+        for (int i = 0; i < 10; i++) {
+            System.out.println("Element: " + i + ", Root: " + DisjointSets.find(i) + ", Size: " + DisjointSets.getSize(i) + ", Height: " + DisjointSets.getHeight(i));
+        }
+        System.exit(0);
         //launch();
     }
 
