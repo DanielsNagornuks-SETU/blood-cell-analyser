@@ -19,14 +19,6 @@ public class App extends Application {
     }
 
     public static void main(String[] args) {
-        DisjointSets.resetElements(10);
-        DisjointSets.union(0,1);
-        DisjointSets.union(2,3);
-        DisjointSets.union(3,1);
-        DisjointSets.elements[3] = 1;
-        for (int i = 0; i < 10; i++) {
-            System.out.println("Element: " + i + ", Root: " + DisjointSets.find(i) + ", Size: " + DisjointSets.getSize(i) + ", Height: " + DisjointSets.getHeight(i));
-        }
         System.exit(0);
         //launch();
     }
