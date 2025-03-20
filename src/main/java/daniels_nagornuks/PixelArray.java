@@ -12,10 +12,10 @@ public class PixelArray {
     }
 
     public void processPixel(int id, int idBelow, int idToRight) {
-        if (getColor(id) == getColor(idToRight)) {
+        if (idToRight != -1 && getColor(id) == getColor(idToRight)) {
             union(id, idToRight);
         }
-        if (getColor(id) == getColor(idBelow)) {
+        if (idBelow != -1 && getColor(id) == getColor(idBelow)) {
             union(id, idBelow);
         }
     }
@@ -24,11 +24,11 @@ public class PixelArray {
         return pixels;
     }
 
-    private boolean isRoot(int id) {
+    public boolean isRoot(int id) {
         return (pixels[id] >>> 31) == 1;
     }
 
-    private int find(int id) {
+    public int find(int id) {
         while(!isRoot(id)) {
             int childId = id;
             id = pixels[id];
@@ -52,7 +52,7 @@ public class PixelArray {
         } else {
             pixels[root2] = root1;
         }
-        setSize(root1, size1);
+        setSize(root1, size1 + size2);
     }
 
     public boolean isWhite(int id) {
@@ -67,9 +67,9 @@ public class PixelArray {
         return getColor(find(id)) == 2;
     }
 
-    private int getColor(int id) {
+    public int getColor(int id) {
         int root = find(id);
-        return (root << 1) >>> 30;
+        return (pixels[root] & 0x60000000) >>> 29;
     }
 
     public void setWhite(int id) {
@@ -86,7 +86,7 @@ public class PixelArray {
 
     private void setColor(int id, int color) {
         int root = find(id);
-        pixels[root] = (pixels[root] & 0x90000000) | (color << 29);
+        pixels[root] = (pixels[root] & 0x9FFFFFFF) | (color << 29);
     }
 
     private void setSize(int id, int size) {
@@ -94,7 +94,7 @@ public class PixelArray {
         pixels[root] = (pixels[root] & 0xE0000000) | size;
     }
 
-    private int getSize(int id) {
+    public int getSize(int id) {
         return pixels[find(id)] & 0x1FFFFFFF;
     }
 
