@@ -29,7 +29,7 @@ public class ImagePreviewController {
     private Stage mainViewStage;
 
     @FXML
-    public void initialize() {
+    private void initialize() {
         colorAdjust.brightnessProperty().bind(brightnessSlider.valueProperty());
         colorAdjust.hueProperty().bind(hueSlider.valueProperty());
         colorAdjust.saturationProperty().bind(saturationSlider.valueProperty());

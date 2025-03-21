@@ -7,6 +7,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.sql.SQLOutput;
+import java.util.Arrays;
 
 public class App extends Application {
 

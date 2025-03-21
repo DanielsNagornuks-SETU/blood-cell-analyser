@@ -2,15 +2,10 @@ package daniels_nagornuks;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.Tooltip;
 import javafx.scene.image.*;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
@@ -53,7 +48,48 @@ public class MainViewController {
     private HashMap<Integer, BloodCellCluster> bloodCellClusters;
     private PixelArray pixelArray;
 
-    private final int bloodCellPixelSize = 500;
+    private final int MIN_CELL_CLUSTER_PIXEL_SIZE = 30;
+
+    private int minBloodCellSize;
+    private int maxBloodCellSize;
+
+    private int calculatedMinBloodCellSize;
+    private int calculatedMaxBloodCellSize;
+
+    private boolean autoSetMinBloodCellSize = true;
+    private boolean autoSetMaxBloodCellSize = true;
+
+    public int getMinBloodCellSize() {
+        return minBloodCellSize;
+    }
+
+    public int getMaxBloodCellSize() {
+        return maxBloodCellSize;
+    }
+
+    public void setMinBloodCellSize(int minBloodCellSize) {
+        this.minBloodCellSize = minBloodCellSize;
+    }
+
+    public void setMaxBloodCellSize(int maxBloodCellSize) {
+        this.maxBloodCellSize = maxBloodCellSize;
+    }
+
+    public boolean isAutoSetMaxBloodCellSize() {
+        return autoSetMaxBloodCellSize;
+    }
+
+    public void setAutoSetMaxBloodCellSize(boolean autoSetMaxBloodCellSize) {
+        this.autoSetMaxBloodCellSize = autoSetMaxBloodCellSize;
+    }
+
+    public boolean isAutoSetMinBloodCellSize() {
+        return autoSetMinBloodCellSize;
+    }
+
+    public void setAutoSetMinBloodCellSize(boolean autoSetMinBloodCellSize) {
+        this.autoSetMinBloodCellSize = autoSetMinBloodCellSize;
+    }
 
     @FXML
     private void initialize() {
@@ -69,12 +105,19 @@ public class MainViewController {
     private void loadImage() {
         imageFile = fileChooser.showOpenDialog(imageView.getScene().getWindow());
         if (imageFile != null) {
-            makeAdjustments();
+            adjustImage();
         }
     }
 
     @FXML
-    private void makeAdjustments() {
+    private void clearImage() {
+        image = null;
+        imageView.setImage(null);
+        resetPane();
+    }
+
+    @FXML
+    private void adjustImage() {
         Stage adjustmentStage = new Stage();
         FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("ImagePreview.fxml"));
         Scene imagePreviewScene;
@@ -94,41 +137,64 @@ public class MainViewController {
         adjustmentStage.show();
     }
 
+    @FXML
+    private void setBloodCellSizes() {
+        Stage bloodCellSizeStage = new Stage();
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("CellSizes.fxml"));
+        Scene cellSizesScene;
+        try {
+            cellSizesScene = new Scene(fxmlloader.load());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        bloodCellSizeStage.setScene(cellSizesScene);
+        bloodCellSizeStage.setTitle("Cell Sizes Settings");
+        CellSizesController cellSizesController = fxmlloader.getController();
+        cellSizesController.setAutoSetMinBloodCellSize(autoSetMinBloodCellSize);
+        cellSizesController.setAutoSetMaxBloodCellSize(autoSetMaxBloodCellSize);
+        cellSizesController.setMainViewStage(bloodCellSizeStage);
+        cellSizesController.setMainViewController(this);
+        cellSizesController.setup();
+        bloodCellSizeStage.setResizable(false);
+        bloodCellSizeStage.initModality(Modality.APPLICATION_MODAL);
+        bloodCellSizeStage.show();
+    }
+
     public void setAdjustedImage(Image adjustedImage) {
         image = adjustedImage;
         setImage();
-    }
-
-    public double[] scaleToFixedHeight(double originalWidth, double originalHeight) {
-        double newWidth = 800;
-        double newHeight = originalHeight / originalWidth * newWidth;
-        return new double[]{newWidth, newHeight};
     }
 
     private void setImage() {
         imageWidth = (int) image.getWidth();
         imageHeight = (int) image.getHeight();
         pixelReader = image.getPixelReader();
-        processedImage = new WritableImage(imageWidth, imageHeight);
-        processedOriginalImage = new WritableImage(imageWidth, imageHeight);
-        processedImagePixelWriter = processedImage.getPixelWriter();
-        processedOriginalImagePixelWriter = processedOriginalImage.getPixelWriter();
-        pane.getChildren().clear();
-        pane.getChildren().add(imageView);
         double[] dimensions = scaleToFixedHeight(imageWidth, imageHeight);
         imageView.setFitHeight(dimensions[1]);
         imageView.setFitWidth(dimensions[0]);
         pane.setPrefSize(dimensions[0], dimensions[1]);
+        processedImage = new WritableImage(imageWidth, imageHeight);
+        processedOriginalImage = new WritableImage(imageWidth, imageHeight);
+        processedImagePixelWriter = processedImage.getPixelWriter();
+        processedOriginalImagePixelWriter = processedOriginalImage.getPixelWriter();
         drawImages();
         displayImage();
         detectCells();
         defineCells();
-        drawRectangles();
+        defineCalculatedCellSizes();
+        applyCellSizesAndDisplayInfographics();
+        System.out.println(calculatedMinBloodCellSize + " " + calculatedMaxBloodCellSize);
+        System.out.println(minBloodCellSize + " " + maxBloodCellSize);
+    }
+
+    private void resetPane() {
+        pane.getChildren().clear();
+        pane.getChildren().add(imageView);
     }
 
     private void drawImages() {
         drawOriginalImage();
-        drawModifiedImage();
+        drawModifiedImageAndSetupPixelArray();
     }
 
     @FXML
@@ -151,9 +217,10 @@ public class MainViewController {
                     pixelIdBelow = y < imageHeight - 1 ? getPixelByCoordinates(x, y + 1) : -1;
                     pixelIdToRight = x < imageWidth - 1 ? getPixelByCoordinates(x + 1, y) : -1;
                     pixelArray.processPixel(pixelId, pixelIdBelow, pixelIdToRight);
-                    if (pixelArray.getSize(pixelId) > bloodCellPixelSize) {
+                    if (pixelArray.getSize(pixelId) > MIN_CELL_CLUSTER_PIXEL_SIZE) {
                         String type = pixelArray.isRed(pixelId) ? "Red" : "White";
-                        bloodCellClusters.put(pixelArray.find(pixelId), new BloodCellCluster(type));
+                        int rootPixel = pixelArray.find(pixelId);
+                        bloodCellClusters.put(rootPixel, new BloodCellCluster(type, rootPixel));
                     }
                 }
             }
@@ -204,7 +271,7 @@ public class MainViewController {
         return new int[] {pixel % imageWidth, pixel / imageWidth};
     }
 
-    private void drawModifiedImage() {
+    private void drawModifiedImageAndSetupPixelArray() {
         pixelArray = new PixelArray(imageWidth * imageHeight);
         bloodCellClusters = new HashMap<>();
         for (int y = 0; y < imageHeight; y++) {
@@ -231,15 +298,37 @@ public class MainViewController {
         }
     }
 
+    public void applyCellSizesAndDisplayInfographics() {
+        minBloodCellSize = isAutoSetMinBloodCellSize() ? calculatedMinBloodCellSize : minBloodCellSize;
+        maxBloodCellSize = isAutoSetMaxBloodCellSize() ? calculatedMaxBloodCellSize : maxBloodCellSize;
+        updateBloodCellClusters();
+        resetPane();
+        drawRectangles();
+    }
+
+    public void updateBloodCellClusters() {
+        for (BloodCellCluster bloodCellCluster : bloodCellClusters.values()) {
+            if (bloodCellCluster.getHeight() < minBloodCellSize && bloodCellCluster.getWidth() < minBloodCellSize) {
+                bloodCellCluster.setNumCells(0);
+            } else if (bloodCellCluster.getHeight() > maxBloodCellSize || bloodCellCluster.getWidth() > maxBloodCellSize) {
+                bloodCellCluster.setNumCells(2);
+            } else {
+                bloodCellCluster.setNumCells(1);
+            }
+        }
+    }
+
     private void drawRectangles() {
         for (BloodCellCluster bloodCellCluster : bloodCellClusters.values()) {
-            double scaleX = imageView.getFitWidth() / imageView.getImage().getWidth();
-            double scaleY = imageView.getFitHeight() / imageView.getImage().getHeight();
-            Rectangle rectangle = new Rectangle(bloodCellCluster.getStartPosX() * scaleX, bloodCellCluster.getStartPosY() * scaleY, bloodCellCluster.getWidth() * scaleX, bloodCellCluster.getHeight() * scaleY);
-            rectangle.setFill(Color.TRANSPARENT);
-            rectangle.setStroke(bloodCellCluster.getType().equals("Red") ? Color.GREEN : Color.RED);
-            rectangle.setStrokeWidth(2);
-            pane.getChildren().add(rectangle);
+            if (bloodCellCluster.getNumCells() > 0) {
+                double scaleX = imageView.getFitWidth() / imageView.getImage().getWidth();
+                double scaleY = imageView.getFitHeight() / imageView.getImage().getHeight();
+                Rectangle rectangle = new Rectangle(bloodCellCluster.getStartPosX() * scaleX, bloodCellCluster.getStartPosY() * scaleY, bloodCellCluster.getWidth() * scaleX, bloodCellCluster.getHeight() * scaleY);
+                rectangle.setFill(Color.TRANSPARENT);
+                rectangle.setStroke(!bloodCellCluster.getType().equals("Red") ? Color.RED : bloodCellCluster.getNumCells() > 1 ? Color.BLUE : Color.GREEN);
+                rectangle.setStrokeWidth(2);
+                pane.getChildren().add(rectangle);
+            }
         }
     }
 
@@ -260,14 +349,53 @@ public class MainViewController {
         return Math.sqrt(redDistance * redDistance + greenDistance * greenDistance + blueDistance * blueDistance);
     }
 
+    public double[] scaleToFixedHeight(double originalWidth, double originalHeight) {
+        double newWidth = 1000;
+        double newHeight = originalHeight / originalWidth * newWidth;
+        return new double[]{newWidth, newHeight};
+    }
+
+    private void defineCalculatedCellSizes() {
+        int[] cellSizes = getCalculatedBloodCellSizes();
+        calculatedMinBloodCellSize = cellSizes[0];
+        calculatedMaxBloodCellSize = cellSizes[1];
+    }
+
+    public int[] getCalculatedBloodCellSizes() {
+        int sizesLength = bloodCellClusters.size();
+        int[] sizes = new int[sizesLength];
+        int index = 0;
+        for (BloodCellCluster bloodCellCluster : bloodCellClusters.values()) {
+            sizes[index++] = bloodCellCluster.getWidth();
+        }
+        sort(sizes);
+        int d1 = sizes[sizesLength / 10];
+        int d9 = sizes[sizesLength * 9 / 10];
+        return new int[] {d1, d9};
+    }
+
+    private static void sort(int[] array) {
+        final int arraySize = array.length;
+        int gap = 1;
+        while (gap < arraySize / 3) {
+            gap = gap * 3 + 1;
+        }
+        while (gap > 0) {
+            for (int index = gap; index < arraySize; index++) {
+                int elem = array[index];
+                int innerIndex = index;
+                while (innerIndex >= gap && array[innerIndex - gap] > elem) {
+                    array[innerIndex] = array[innerIndex - gap];
+                    innerIndex -= gap;
+                }
+                array[innerIndex] = elem;
+            }
+            gap /= 3;
+        }
+    }
+
     /*
-    TODO: Add quartile ranges to detect:
-            more than 1 cell in a cluster
-            detect and ignore noise from tri-color conversion
     TODO: Add numbering and tooltips to rectangles
-    TODO: Modify rectangles to highlight cell clusters with blue which have more than 1 cell
-    TODO: Add option for user to specify custom min/max sizes for cells
-    TODO: Add option to clear image
     TODO: Add info section to view stats (total number of cells, red blood cells, clusters, etc.)
      */
 

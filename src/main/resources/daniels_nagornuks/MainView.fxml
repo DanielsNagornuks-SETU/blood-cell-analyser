@@ -19,6 +19,7 @@
             <Menu mnemonicParsing="false" text="File">
                <items>
                   <MenuItem mnemonicParsing="false" onAction="#loadImage" text="Load" />
+                  <MenuItem mnemonicParsing="false" onAction="#clearImage" text="Clear" />
                   <MenuItem mnemonicParsing="false" onAction="#exitApplication" text="Exit" />
                </items>
             </Menu>
@@ -40,7 +41,12 @@
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </HBox.margin>
             </CheckBox>
-            <Button mnemonicParsing="false" onAction="#makeAdjustments" text="Make Adjustments">
+            <Button mnemonicParsing="false" onAction="#adjustImage" text="Make Adjustments">
+               <HBox.margin>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </HBox.margin>
+            </Button>
+            <Button mnemonicParsing="false" onAction="#setBloodCellSizes" text="Set Blood Cell Sizes">
                <HBox.margin>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </HBox.margin>

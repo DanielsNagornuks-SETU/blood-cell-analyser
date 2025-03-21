@@ -12,8 +12,19 @@ public class BloodCellCluster {
 
     private int numCells = -1;
 
-    public BloodCellCluster(String type) {
+    private int rootPixel;
+
+    public BloodCellCluster(String type, int rootPixel) {
         this.type = type;
+        this.rootPixel = rootPixel;
+    }
+
+    public int getRootPixel() {
+        return rootPixel;
+    }
+
+    public void setRootPixel(int rootPixel) {
+        this.rootPixel = rootPixel;
     }
 
     public int getStartPosX() {
