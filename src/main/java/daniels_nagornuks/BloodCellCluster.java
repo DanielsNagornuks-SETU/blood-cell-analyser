@@ -1,5 +1,7 @@
 package daniels_nagornuks;
 
+import java.util.Objects;
+
 public class BloodCellCluster {
 
     private int startPosX = -1;
@@ -10,7 +12,7 @@ public class BloodCellCluster {
 
     private String type;
 
-    private int numCells = -1;
+    private int numCells = 0;
 
     private int rootPixel;
 
@@ -81,6 +83,32 @@ public class BloodCellCluster {
 
     public int getHeight() {
         return endPosY - startPosY + 1;
+    }
+
+    @Override
+    public String toString() {
+        return "BloodCellCluster{" +
+                "startPosX=" + startPosX +
+                ", startPosY=" + startPosY +
+                ", endPosX=" + endPosX +
+                ", endPosY=" + endPosY +
+                ", type='" + type + '\'' +
+                ", numCells=" + numCells +
+                ", rootPixel=" + rootPixel +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BloodCellCluster that = (BloodCellCluster) o;
+        return startPosX == that.startPosX && startPosY == that.startPosY && endPosX == that.endPosX && endPosY == that.endPosY && numCells == that.numCells && rootPixel == that.rootPixel && Objects.equals(type, that.type);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(startPosX, startPosY, endPosX, endPosY, type, numCells, rootPixel);
     }
 
 }

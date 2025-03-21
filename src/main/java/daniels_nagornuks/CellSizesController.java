@@ -8,16 +8,10 @@ import javafx.stage.Stage;
 public class CellSizesController {
 
     @FXML
-    private ChoiceBox<String> minBloodCellSizeChoiceBox;
+    private ChoiceBox<String> minBloodCellSizeChoiceBox, maxBloodCellSizeChoiceBox;
 
     @FXML
-    private ChoiceBox<String> maxBloodCellSizeChoiceBox;
-
-    @FXML
-    private TextField minBloodCellSizeField;
-
-    @FXML
-    private TextField maxBloodCellSizeField;
+    private TextField minBloodCellSizeField, maxBloodCellSizeField;
 
     private Stage mainViewStage;
 

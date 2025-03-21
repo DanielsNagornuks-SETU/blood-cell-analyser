@@ -12,13 +12,7 @@ import java.io.File;
 public class ImagePreviewController {
 
     @FXML
-    private Slider saturationSlider;
-
-    @FXML
-    private Slider hueSlider;
-
-    @FXML
-    private Slider brightnessSlider;
+    private Slider saturationSlider, hueSlider, brightnessSlider;
 
     @FXML
     private ImageView previewImageView;
