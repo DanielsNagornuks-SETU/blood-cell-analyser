@@ -45,14 +45,14 @@ public class MainViewController {
     private int imageWidth;
     private int imageHeight;
 
-    private final Color redBloodCellColor = new Color(0.75, 0.3, 0.6, 1);
-    private final Color whiteBloodCellColor = new Color(0.45, 0.2, 0.65, 1);
-    private final Color backgroundCellColor = new Color(0.95, 0.7, 0.7, 1);
+    private final Color redBloodCellColor = new Color(0.70, 0.44, 0.57, 1);
+    private final Color whiteBloodCellColor = new Color(0.61, 0.45, 0.78, 1);
+    private final Color backgroundCellColor = new Color(0.95, 0.8, 0.8, 1);
 
     private LinkedHashMap<Integer, BloodCellCluster> bloodCellClusters;
     private PixelArray pixelArray;
 
-    private final int MIN_CELL_CLUSTER_PIXEL_SIZE = 30;
+    private final int MIN_CELL_CLUSTER_PIXEL_SIZE = 25;
 
     private int minBloodCellSize;
     private int maxBloodCellSize;
@@ -63,6 +63,29 @@ public class MainViewController {
 
     private boolean autoSetMinBloodCellSize = true;
     private boolean autoSetMaxBloodCellSize = true;
+
+    private WelcomeScreenController welcomeScreenController;
+    private Scene welcomeScreenScene;
+
+    public WelcomeScreenController getWelcomeScreenController() {
+        return welcomeScreenController;
+    }
+
+    public void setWelcomeScreenController(WelcomeScreenController welcomeScreenController) {
+        this.welcomeScreenController = welcomeScreenController;
+    }
+
+    public Scene getWelcomeScreenScene() {
+        return welcomeScreenScene;
+    }
+
+    public void setWelcomeScreenScene(Scene welcomeScreenScene) {
+        this.welcomeScreenScene = welcomeScreenScene;
+    }
+
+    public void setImageFile(File imageFile) {
+        this.imageFile = imageFile;
+    }
 
     public int getMinBloodCellSize() {
         return minBloodCellSize;
@@ -119,10 +142,20 @@ public class MainViewController {
         image = null;
         imageView.setImage(null);
         resetPane();
+        try {
+            switchScene();
+        } catch (IOException err) {
+            err.printStackTrace();
+        }
+    }
+
+    private void switchScene() throws IOException {
+        Stage stage = (Stage) imageView.getScene().getWindow();
+        stage.setScene(welcomeScreenScene);
     }
 
     @FXML
-    private void adjustImage() {
+    public void adjustImage() {
         Stage adjustmentStage = new Stage();
         FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("ImagePreview.fxml"));
         Scene imagePreviewScene;
@@ -244,13 +277,13 @@ public class MainViewController {
                 int pixelId = getPixelByCoordinates(x, y);
                 BloodCellCluster bloodCellCluster = bloodCellClusters.get(pixelArray.find(pixelId));
                 if (bloodCellCluster != null) {
-                    updateBloodCellCluster(pixelId);
+                    updateBloodCellClusterDimensions(pixelId);
                 }
             }
         }
     }
 
-    private void updateBloodCellCluster(int pixelId) {
+    private void updateBloodCellClusterDimensions(int pixelId) {
         BloodCellCluster bloodCellCluster = bloodCellClusters.get(pixelArray.find(pixelId));
         int[] pixelCoordinates = getCoordinatesByPixel(pixelId);
         if (bloodCellCluster.getStartPosY() == -1) {
@@ -309,6 +342,9 @@ public class MainViewController {
     public void applyCellSizesAndDisplayInfographics() {
         minBloodCellSize = isAutoSetMinBloodCellSize() ? calculatedMinBloodCellSize : minBloodCellSize;
         maxBloodCellSize = isAutoSetMaxBloodCellSize() ? calculatedMaxBloodCellSize : maxBloodCellSize;
+        detectCells();
+        defineCells();
+        defineCalculatedCellSizes();
         updateBloodCellClusters();
         drawRectangles(showTooltipsCheckBox.isSelected(), showClusterOutlinesCheckBox.isSelected(), showClustersNumberedCheckBox.isSelected());
     }
@@ -345,18 +381,21 @@ public class MainViewController {
                 rectangle.setFill(Color.TRANSPARENT);
                 rectangle.setStroke(!outlinesEnabled ? Color.TRANSPARENT : !bloodCellCluster.getType().equals("Red") ? Color.RED : bloodCellCluster.getNumCells() > 1 ? Color.BLUE : Color.GREEN);
                 rectangle.setStrokeWidth(2);
+                Text text = new Text((bloodCellCluster.getStartPosX() + 3) * scaleX, (bloodCellCluster.getStartPosY() + bloodCellCluster.getHeight() - 3) * scaleY, String.valueOf(seqNum));
                 if (tooltipsEnabled) {
                     Tooltip tooltip = new Tooltip("Number of cells: " + bloodCellCluster.getNumCells());
                     tooltip.setShowDelay(Duration.millis(100));
+                    tooltip.setFont(new Font(14));
                     Tooltip.install(rectangle, tooltip);
+                    Tooltip.install(text, tooltip);
                 }
                 if (numberingEnabled) {
-                    Text text = new Text((bloodCellCluster.getStartPosX() + 3) * scaleX, (bloodCellCluster.getStartPosY() + bloodCellCluster.getHeight() - 3) * scaleY, String.valueOf(seqNum));
                     text.setFont(new Font(18));
-                    pane.getChildren().addAll(rectangle, text);
                 } else {
-                    pane.getChildren().add(rectangle);
+                    text.setFont(new Font(0));
                 }
+                pane.getChildren().addAll(rectangle, text);
+
                 seqNum++;
             }
         }
@@ -426,7 +465,6 @@ public class MainViewController {
     }
 
     /*
-    TODO: Add welcome scene
     TODO: Add info section to view stats (total number of cells, red blood cells, clusters, etc.)
      */
 
