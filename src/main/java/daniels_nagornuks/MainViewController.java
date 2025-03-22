@@ -67,6 +67,8 @@ public class MainViewController {
     private WelcomeScreenController welcomeScreenController;
     private Scene welcomeScreenScene;
 
+    private int numRedBloodCells, numWhiteBloodCells, numBloodCellClusters;
+
     public WelcomeScreenController getWelcomeScreenController() {
         return welcomeScreenController;
     }
@@ -155,6 +157,26 @@ public class MainViewController {
     }
 
     @FXML
+    private void displayDetails() {
+        Stage detailsStage = new Stage();
+        FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("DetailsWindow.fxml"));
+        Scene detailsScene;
+        try {
+            detailsScene = new Scene(fxmlloader.load());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        detailsStage.setScene(detailsScene);
+        detailsStage.setTitle("Image Details Window");
+        DetailsWindowController detailsWindowController = fxmlloader.getController();
+        detailsWindowController.setDetails(numBloodCellClusters, numRedBloodCells, numWhiteBloodCells);
+        detailsStage.setResizable(false);
+        detailsStage.initModality(Modality.APPLICATION_MODAL);
+        detailsStage.getIcons().add(new Image(App.class.getResourceAsStream("appIcon.png")));
+        detailsStage.show();
+    }
+
+    @FXML
     public void adjustImage() {
         Stage adjustmentStage = new Stage();
         FXMLLoader fxmlloader = new FXMLLoader(getClass().getResource("ImagePreview.fxml"));
@@ -172,6 +194,7 @@ public class MainViewController {
         adjustmentStage.initModality(Modality.APPLICATION_MODAL);
         imagePreviewController.setMainViewController(this);
         imagePreviewController.setMainViewStage(adjustmentStage);
+        adjustmentStage.getIcons().add(new Image(App.class.getResourceAsStream("appIcon.png")));
         adjustmentStage.show();
     }
 
@@ -195,6 +218,7 @@ public class MainViewController {
         cellSizesController.setup();
         bloodCellSizeStage.setResizable(false);
         bloodCellSizeStage.initModality(Modality.APPLICATION_MODAL);
+        bloodCellSizeStage.getIcons().add(new Image(App.class.getResourceAsStream("appIcon.png")));
         bloodCellSizeStage.show();
     }
 
@@ -374,6 +398,9 @@ public class MainViewController {
     private void drawInfographics(boolean tooltipsEnabled, boolean outlinesEnabled, boolean numberingEnabled) {
         resetPane();
         int seqNum = 1;
+        numRedBloodCells = 0;
+        numWhiteBloodCells = 0;
+        numBloodCellClusters = 0;
         for (BloodCellCluster bloodCellCluster : bloodCellClusters.values()) {
             if (bloodCellCluster.getNumCells() > 0) {
                 double scaleX = imageView.getFitWidth() / imageView.getImage().getWidth();
@@ -396,7 +423,11 @@ public class MainViewController {
                     text.setFont(new Font(0));
                 }
                 pane.getChildren().addAll(rectangle, text);
-
+                if (!bloodCellCluster.getType().equals("Red"))
+                    numWhiteBloodCells ++;
+                else
+                    numRedBloodCells += bloodCellCluster.getNumCells();
+                numBloodCellClusters++;
                 seqNum++;
             }
         }
@@ -463,9 +494,5 @@ public class MainViewController {
             gap /= 3;
         }
     }
-
-    /*
-    TODO: Add info section to view stats (total number of cells, red blood cells, clusters, etc.)
-     */
 
 }

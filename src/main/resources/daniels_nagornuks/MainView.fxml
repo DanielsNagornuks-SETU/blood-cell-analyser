@@ -19,6 +19,7 @@
             <Menu mnemonicParsing="false" text="File">
                <items>
                   <MenuItem mnemonicParsing="false" onAction="#loadImage" text="Load" />
+                  <MenuItem mnemonicParsing="false" onAction="#displayDetails" text="Details" />
                   <MenuItem mnemonicParsing="false" onAction="#clearImage" text="Clear" />
                   <MenuItem mnemonicParsing="false" onAction="#exitApplication" text="Exit" />
                </items>
