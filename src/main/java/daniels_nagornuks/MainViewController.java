@@ -244,7 +244,7 @@ public class MainViewController {
 
     @FXML
     private void updatePane() {
-        drawRectangles(showTooltipsCheckBox.isSelected(), showClusterOutlinesCheckBox.isSelected(), showClustersNumberedCheckBox.isSelected());
+        drawInfographics(showTooltipsCheckBox.isSelected(), showClusterOutlinesCheckBox.isSelected(), showClustersNumberedCheckBox.isSelected());
     }
 
     private void detectCells() {
@@ -342,11 +342,12 @@ public class MainViewController {
     public void applyCellSizesAndDisplayInfographics() {
         minBloodCellSize = isAutoSetMinBloodCellSize() ? calculatedMinBloodCellSize : minBloodCellSize;
         maxBloodCellSize = isAutoSetMaxBloodCellSize() ? calculatedMaxBloodCellSize : maxBloodCellSize;
+        medianBloodCellSize = (minBloodCellSize + maxBloodCellSize) / 2;
         detectCells();
         defineCells();
         defineCalculatedCellSizes();
         updateBloodCellClusters();
-        drawRectangles(showTooltipsCheckBox.isSelected(), showClusterOutlinesCheckBox.isSelected(), showClustersNumberedCheckBox.isSelected());
+        drawInfographics(showTooltipsCheckBox.isSelected(), showClusterOutlinesCheckBox.isSelected(), showClustersNumberedCheckBox.isSelected());
     }
 
     public void updateBloodCellClusters() {
@@ -370,7 +371,7 @@ public class MainViewController {
         }
     }
 
-    private void drawRectangles(boolean tooltipsEnabled, boolean outlinesEnabled, boolean numberingEnabled) {
+    private void drawInfographics(boolean tooltipsEnabled, boolean outlinesEnabled, boolean numberingEnabled) {
         resetPane();
         int seqNum = 1;
         for (BloodCellCluster bloodCellCluster : bloodCellClusters.values()) {
@@ -438,7 +439,6 @@ public class MainViewController {
             sizes[index++] = bloodCellCluster.getWidth();
         }
         sort(sizes);
-        medianBloodCellSize = sizes[sizesLength / 2];
         int d3 = sizes[sizesLength * 3 / 10];
         int d8 = sizes[sizesLength * 8 / 10];
         return new int[] {d3, d8};
