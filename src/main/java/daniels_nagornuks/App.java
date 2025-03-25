@@ -33,9 +33,4 @@ public class App extends Application {
         launch();
     }
 
-    /*
-    TODO: Benchmarking
-    TODO: JUnit tests
-     */
-
 }
