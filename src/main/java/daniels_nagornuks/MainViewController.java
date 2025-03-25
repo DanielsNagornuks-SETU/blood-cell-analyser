@@ -42,14 +42,14 @@ public class MainViewController {
     private PixelWriter processedImagePixelWriter;
     private PixelWriter processedOriginalImagePixelWriter;
 
+    /* Protected variables and methods to allow JUnit testing, otherwise they are to be private */
+
     protected int imageWidth;
     protected int imageHeight;
 
     private final Color redBloodCellColor = new Color(0.70, 0.44, 0.57, 1);
     private final Color whiteBloodCellColor = new Color(0.61, 0.45, 0.78, 1);
     private final Color backgroundCellColor = new Color(0.95, 0.8, 0.8, 1);
-
-    /* Protected variables and methods to allow JUnit testing, otherwise they are to be private */
 
     protected LinkedHashMap<Integer, BloodCellCluster> bloodCellClusters;
     protected PixelArray pixelArray;
