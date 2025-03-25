@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 public class PixelArrayTest {
 
-    PixelArray pixelArray;
+    private PixelArray pixelArray;
 
     @BeforeEach
     void setUp() {

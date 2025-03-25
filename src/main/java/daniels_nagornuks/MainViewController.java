@@ -42,17 +42,19 @@ public class MainViewController {
     private PixelWriter processedImagePixelWriter;
     private PixelWriter processedOriginalImagePixelWriter;
 
-    private int imageWidth;
-    private int imageHeight;
+    protected int imageWidth;
+    protected int imageHeight;
 
     private final Color redBloodCellColor = new Color(0.70, 0.44, 0.57, 1);
     private final Color whiteBloodCellColor = new Color(0.61, 0.45, 0.78, 1);
     private final Color backgroundCellColor = new Color(0.95, 0.8, 0.8, 1);
 
-    private LinkedHashMap<Integer, BloodCellCluster> bloodCellClusters;
-    private PixelArray pixelArray;
+    /* Protected variables and methods to allow JUnit testing, otherwise they are to be private */
 
-    private final int MIN_CELL_CLUSTER_PIXEL_SIZE = 25;
+    protected LinkedHashMap<Integer, BloodCellCluster> bloodCellClusters;
+    protected PixelArray pixelArray;
+
+    protected int MIN_CELL_CLUSTER_PIXEL_SIZE = 25;
 
     private int minBloodCellSize;
     private int maxBloodCellSize;
@@ -271,12 +273,11 @@ public class MainViewController {
         drawInfographics(showTooltipsCheckBox.isSelected(), showClusterOutlinesCheckBox.isSelected(), showClustersNumberedCheckBox.isSelected());
     }
 
-    private void detectCells() {
+    protected void detectCells() {
         for (int y = 0; y < imageHeight; y++) {
             for (int x = 0; x < imageWidth; x++) {
                 int pixelId = getPixelByCoordinates(x, y);
                 if (!pixelArray.isWhite(pixelId)) {
-
                     int pixelIdBelow = y + 1 < imageHeight ? getPixelByCoordinates(x, y + 1) : -1;
                     int pixelIdToRight = x + 1 < imageWidth ? getPixelByCoordinates(x + 1, y) : -1;
                     pixelArray.processPixel(pixelId, pixelIdBelow, pixelIdToRight);
@@ -295,7 +296,7 @@ public class MainViewController {
         }
     }
 
-    private void defineCells() {
+    protected void defineCells() {
         for (int y = 0; y < imageHeight; y++) {
             for (int x = 0; x < imageWidth; x++) {
                 int pixelId = getPixelByCoordinates(x, y);
@@ -307,7 +308,7 @@ public class MainViewController {
         }
     }
 
-    private void updateBloodCellClusterDimensions(int pixelId) {
+    protected void updateBloodCellClusterDimensions(int pixelId) {
         BloodCellCluster bloodCellCluster = bloodCellClusters.get(pixelArray.find(pixelId));
         int[] pixelCoordinates = getCoordinatesByPixel(pixelId);
         if (bloodCellCluster.getStartPosY() == -1) {
@@ -328,11 +329,11 @@ public class MainViewController {
         }
     }
 
-    private int getPixelByCoordinates(int x, int y) {
+    protected int getPixelByCoordinates(int x, int y) {
         return y * imageWidth + x;
     }
 
-    private int[] getCoordinatesByPixel(int pixel) {
+    protected int[] getCoordinatesByPixel(int pixel) {
         return new int[] {pixel % imageWidth, pixel / imageWidth};
     }
 
